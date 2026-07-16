@@ -1,2 +1,2 @@
-# 0culto-discord.github.io
-Portfolio de Hi Den.
+\# 0culto-discord.github.io
+
