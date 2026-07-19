@@ -3,9 +3,9 @@
   function safeGet(id) {
     return document.getElementById(id) || null;
   }
-  function logInfo(...args) { console.info('[backend.js]', ...args); }
-  function logWarn(...args) { console.warn('[backend.js]', ...args); }
-  function logError(...args) { console.error('[backend.js]', ...args); }
+  function logInfo(...args) { console.info('[script.js]', ...args); }
+  function logWarn(...args) { console.warn('[script.js]', ...args); }
+  function logError(...args) { console.error('[script.js]', ...args); }
   const gateScreen = safeGet('gate-screen');
   const line1 = safeGet('line-1');
   const line2 = safeGet('line-2');
@@ -129,9 +129,9 @@
     });
   }
   document.addEventListener('DOMContentLoaded', () => {
-    logInfo('backend.js chargé');
+    logInfo('script.js chargé');
   });
-  window.__HiDenBackend = {
+  window.__HiDenscript = {
     startBootSequence,
     switchDefinitionTab,
     initScrollReveal,
