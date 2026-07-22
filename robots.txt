@@ -1,0 +1,106 @@
+# Bloque tous les robots, sans exception : indexation ET archivage interdits.
+
+User-agent: *
+Disallow: /
+
+# --- Robots d'archivage explicitement ciblés (Wayback Machine, archive.today, etc.) ---
+User-agent: ia_archiver
+Disallow: /
+
+User-agent: archive.org_bot
+Disallow: /
+
+User-agent: Wayback
+Disallow: /
+
+User-agent: archive.today
+Disallow: /
+
+User-agent: archive.ph
+Disallow: /
+
+User-agent: Archive-It
+Disallow: /
+
+User-agent: archive.org_bot
+Disallow: /
+
+User-agent: heritrix
+Disallow: /
+
+User-agent: ia_archiver
+Disallow: /
+
+User-agent: ia_archiver-web.archive.org
+Disallow: /
+
+User-agent: Internet Archive
+Disallow: /
+
+User-agent: special_archiver
+Disallow: /
+
+User-agent: InternetArchiveBot
+Disallow: /
+
+# --- Principaux moteurs de recherche (redondant avec le "*" ci-dessus, mais explicite) ---
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Googlebot-Image
+Disallow: /
+
+User-agent: Bingbot
+Disallow: /
+
+User-agent: Yandex
+Disallow: /
+
+User-agent: Baiduspider
+Disallow: /
+
+User-agent: DuckDuckBot
+Disallow: /
+
+User-agent: Applebot
+Disallow: /
+
+User-agent: facebookexternalhit
+Disallow: /
+
+User-agent: Twitterbot
+Disallow: /
+
+User-agent: LinkedInBot
+Disallow: /
+
+User-agent: Slurp
+Disallow: /
+
+# --- Robots d'IA / d'entraînement de modèles ---
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+# Aucun délai d'exploration n'est nécessaire : l'accès est refusé dans son intégralité.
+Crawl-delay: 3600
