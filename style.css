@@ -133,7 +133,7 @@ main {
   line-height: 1.9;
   letter-spacing: 0.015em;
   color: var(--fg-muted);
-  max-width: 50%;
+  max-width: 70%;
   margin: 0 auto;
 }
 
