@@ -200,7 +200,7 @@
   );
 
   const BASE_SCALE = 1;
-  const MAX_EXTRA_SCALE = 0.045;
+  const MAX_EXTRA_SCALE = 0.35;
   let currentScale = BASE_SCALE;
 
   function loop() {
@@ -219,7 +219,7 @@
     }
     const rms = Math.sqrt(sumSquares / dataArray.length);
 
-    const targetScale = BASE_SCALE + Math.min(rms, 1) * MAX_EXTRA_SCALE;
+    const targetScale = BASE_SCALE + Math.min(rms * 3, 1) * MAX_EXTRA_SCALE;
     const smoothing = reducedMotion ? 1 : 0.06;
     currentScale += (targetScale - currentScale) * smoothing;
 
