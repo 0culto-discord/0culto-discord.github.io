@@ -69,6 +69,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--fg);
+  background: red !important;
   font-family: var(--font-sans);
   font-weight: 300;
   text-align: center;
