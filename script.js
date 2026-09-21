@@ -176,72 +176,85 @@
   const audioCtx = new AudioContextClass();
   const source = audioCtx.createMediaElementSource(voix);
   const analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 256;
 
-  source.connect(analyser);
-  analyser.connect(audioCtx.destination);
-
+  // Plus de précision dans les fréquences graves
+  analyser.fftSize = 1024;
+  
+  // Analyse fréquentielle
   const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-  // Tentative immédiate : si Firefox autorise déjà le son sur cette
-  // page (réglage qu'on a changé plus tôt), ça suffit à relancer le
-  // contexte tout de suite, sans attendre de clic.
+  
   function resumeContext() {
     if (audioCtx.state === "suspended") {
       audioCtx.resume();
     }
   }
+  
   resumeContext();
-
-  // Filet de sécurité : si le contexte est encore en pause, on
-  // retente à chaque interaction, exactement comme pour la lecture.
-  ["click", "keydown", "touchstart", "scroll"].forEach((ev) =>
-    window.addEventListener(ev, resumeContext, { passive: true })
-  );
-
+  
+  ["click", "keydown", "touchstart", "scroll"].forEach((ev) => {
+    window.addEventListener(ev, resumeContext, { passive: true });
+  });
+  
+  // ================================
+  // ZOOM DE L'IMAGE
+  // ================================
+  
   const BASE_SCALE = 1;
-  const MAX_EXTRA_SCALE = 0.35;
+  const MAX_EXTRA_SCALE = 0.30;
+  
   let currentScale = BASE_SCALE;
-
+  
+  // ================================
+  // ANALYSE DES BASSES
+  // ================================
+  
   function loop() {
-    // Filet de sécurité supplémentaire : tant que le contexte n'est
-    // pas actif, on continue d'essayer à chaque image.
+  
     if (audioCtx.state === "suspended") {
       resumeContext();
     }
-
+  
     analyser.getByteFrequencyData(dataArray);
-    
-    // Analyse des basses : environ 20–150 Hz
+  
     let bassSum = 0;
     let bassCount = 0;
-    
+  
+    // Fréquences utilisées pour les kicks / basses
     for (let i = 0; i < dataArray.length; i++) {
-      const frequency = i * audioCtx.sampleRate / analyser.fftSize;
-    
-      if (frequency >= 20 && frequency <= 150) {
+  
+      const frequency =
+        i * audioCtx.sampleRate / analyser.fftSize;
+  
+      if (frequency >= 30 && frequency <= 150) {
         bassSum += dataArray[i];
         bassCount++;
       }
     }
-    
+  
+    // Niveau moyen des basses entre 0 et 1
     const bass = bassCount > 0
       ? bassSum / bassCount / 255
       : 0;
-    
-    // Amplification de la réaction
-    const bassBoost = Math.min(bass * 3.5, 1);
-    
+  
+    // Amplifie fortement la réaction
+    const bassBoost = Math.min(bass * 5, 1);
+  
+    // Taille cible de l'image
     const targetScale =
       BASE_SCALE + bassBoost * MAX_EXTRA_SCALE;
-    const smoothing = reducedMotion ? 1 : 0.06;
-    currentScale += (targetScale - currentScale) * smoothing;
-
-    bgImage.style.transform = `scale(${currentScale.toFixed(4)})`;
-
+  
+    // Réaction assez rapide
+    const smoothing = reducedMotion ? 1 : 0.18;
+  
+    currentScale +=
+      (targetScale - currentScale) * smoothing;
+  
+    bgImage.style.transform =
+      `scale(${currentScale.toFixed(4)})`;
+  
     requestAnimationFrame(loop);
   }
-
+  
   loop();
 })();
 
