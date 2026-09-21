@@ -210,16 +210,30 @@
       resumeContext();
     }
 
-    analyser.getByteTimeDomainData(dataArray);
-
-    let sumSquares = 0;
+    analyser.getByteFrequencyData(dataArray);
+    
+    // Analyse des basses : environ 20–150 Hz
+    let bassSum = 0;
+    let bassCount = 0;
+    
     for (let i = 0; i < dataArray.length; i++) {
-      const value = (dataArray[i] - 128) / 128;
-      sumSquares += value * value;
+      const frequency = i * audioCtx.sampleRate / analyser.fftSize;
+    
+      if (frequency >= 20 && frequency <= 150) {
+        bassSum += dataArray[i];
+        bassCount++;
+      }
     }
-    const rms = Math.sqrt(sumSquares / dataArray.length);
-
-    const targetScale = BASE_SCALE + Math.min(rms * 3, 1) * MAX_EXTRA_SCALE;
+    
+    const bass = bassCount > 0
+      ? bassSum / bassCount / 255
+      : 0;
+    
+    // Amplification de la réaction
+    const bassBoost = Math.min(bass * 3.5, 1);
+    
+    const targetScale =
+      BASE_SCALE + bassBoost * MAX_EXTRA_SCALE;
     const smoothing = reducedMotion ? 1 : 0.06;
     currentScale += (targetScale - currentScale) * smoothing;
 
