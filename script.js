@@ -177,6 +177,9 @@
   const source = audioCtx.createMediaElementSource(voix);
   const analyser = audioCtx.createAnalyser();
 
+  source.connect(analyser);
+  analyser.connect(audioCtx.destination);
+
   // Plus de précision dans les fréquences graves
   analyser.fftSize = 1024;
   
