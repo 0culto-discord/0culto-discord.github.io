@@ -177,87 +177,88 @@
   const source = audioCtx.createMediaElementSource(voix);
   const analyser = audioCtx.createAnalyser();
 
+  // Reconnexion indispensable : sans ça, le son est capté par l'analyseur
+  // mais ne ressort jamais sur les haut-parleurs.
   source.connect(analyser);
   analyser.connect(audioCtx.destination);
 
   // Plus de précision dans les fréquences graves
   analyser.fftSize = 1024;
-  
+
   // Analyse fréquentielle
   const dataArray = new Uint8Array(analyser.frequencyBinCount);
-  
+
   function resumeContext() {
     if (audioCtx.state === "suspended") {
       audioCtx.resume();
     }
   }
-  
+
   resumeContext();
-  
+
   ["click", "keydown", "touchstart", "scroll"].forEach((ev) => {
     window.addEventListener(ev, resumeContext, { passive: true });
   });
-  
+
   // ================================
   // ZOOM DE L'IMAGE
   // ================================
-  
+
   const BASE_SCALE = 1;
-  const MAX_EXTRA_SCALE = 0.30;
-  
+  const MAX_EXTRA_SCALE = 0.12; // amplitude maximale du zoom
+
   let currentScale = BASE_SCALE;
-  
+
   // ================================
   // ANALYSE DES BASSES
   // ================================
-  
+
   function loop() {
-  
     if (audioCtx.state === "suspended") {
       resumeContext();
     }
-  
+
     analyser.getByteFrequencyData(dataArray);
-  
+
     let bassSum = 0;
     let bassCount = 0;
-  
+
     // Fréquences utilisées pour les kicks / basses
     for (let i = 0; i < dataArray.length; i++) {
-  
-      const frequency =
-        i * audioCtx.sampleRate / analyser.fftSize;
-  
+      const frequency = (i * audioCtx.sampleRate) / analyser.fftSize;
+
       if (frequency >= 30 && frequency <= 150) {
         bassSum += dataArray[i];
         bassCount++;
       }
     }
-  
+
     // Niveau moyen des basses entre 0 et 1
-    const bass = bassCount > 0
-      ? bassSum / bassCount / 255
-      : 0;
-  
-    // Amplifie fortement la réaction
-    const bassBoost = Math.min(bass * 5, 1);
-  
+    const bass = bassCount > 0 ? bassSum / bassCount / 255 : 0;
+
+    // Seuil de bruit : en dessous, on considère qu'il n'y a pas de kick
+    const NOISE_GATE = 0.15;
+    const bassAdjusted =
+      bass > NOISE_GATE ? (bass - NOISE_GATE) / (1 - NOISE_GATE) : 0;
+
+    // Amplifie modérément la réaction
+    const bassBoost = Math.min(bassAdjusted * 2, 1);
+
     // Taille cible de l'image
-    const targetScale =
-      BASE_SCALE + bassBoost * MAX_EXTRA_SCALE;
-  
-    // Réaction assez rapide
-    const smoothing = reducedMotion ? 1 : 0.18;
-  
-    currentScale +=
-      (targetScale - currentScale) * smoothing;
-  
-    bgImage.style.transform =
-      `scale(${currentScale.toFixed(4)})`;
-  
+    const targetScale = BASE_SCALE + bassBoost * MAX_EXTRA_SCALE;
+
+    // Lissage asymétrique : montée rapide (attaque), descente lente (release)
+    const smoothingUp = 0.15;
+    const smoothingDown = 0.05;
+    const smoothing = targetScale > currentScale ? smoothingUp : smoothingDown;
+
+    currentScale += (targetScale - currentScale) * (reducedMotion ? 1 : smoothing);
+
+    bgImage.style.transform = `scale(${currentScale.toFixed(4)})`;
+
     requestAnimationFrame(loop);
   }
-  
+
   loop();
 })();
 
